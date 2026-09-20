@@ -13,17 +13,36 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Services:
+Host ports (remapped to avoid common local conflicts):
 
 | Service        | URL / port              |
 |----------------|-------------------------|
-| Frontend       | http://localhost:3000   |
-| Backend API    | http://localhost:8000   |
-| API docs       | http://localhost:8000/docs |
-| PostgreSQL     | localhost:5432          |
-| Redis          | localhost:6379          |
+| Frontend       | http://localhost:3001   |
+| Backend API    | http://localhost:8001   |
+| API docs       | http://localhost:8001/docs |
+| PostgreSQL     | localhost:5435          |
+| Redis          | localhost:6381          |
 | Celery worker  | background              |
 | Celery beat    | scheduled jobs          |
+
+> Inside Docker the services still use standard internal ports (`db:5432`, `redis:6379`, `backend:8000`).
+
+### Hybrid local development (DB/Redis in Docker)
+
+If application image builds are slow, you can run API/UI on the host:
+
+```bash
+docker compose up -d db redis
+cd backend && python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+# Point DATABASE_URL* at localhost:5435 and REDIS at localhost:6381 (see .env)
+alembic upgrade head && python -m app.scripts.seed
+uvicorn app.main:app --reload --port 8001
+celery -A app.tasks.celery_app worker -l info   # separate terminal
+
+cd ../frontend && npm install
+NEXT_PUBLIC_API_URL=http://localhost:8001 npm run dev -- -p 3001
+```
 
 **Demo login** (created by seed on first boot):
 

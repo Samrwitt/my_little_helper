@@ -468,7 +468,7 @@ async def seed() -> None:
                 channel=NotificationChannel.IN_APP,
                 title="Deadline approaching",
                 body="DAAD EPOS Scholarship deadline is within 60 days. Start gathering documents.",
-                link="/scholarships",),
+                link="/scholarships",
                 is_read=False,
             )
         )

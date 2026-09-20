@@ -11,10 +11,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Playwright browsers for dynamic rendering (optional at runtime)
-RUN playwright install --with-deps chromium || true
-
 COPY . .
+
+# Playwright browsers are optional; install at runtime if needed:
+#   playwright install --with-deps chromium
 
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1

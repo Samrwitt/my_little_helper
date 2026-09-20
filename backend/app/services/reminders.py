@@ -65,7 +65,7 @@ class ReminderService:
         deadline = scholarship.application_deadline
         today = datetime.now(timezone.utc).date()
 
-        for days in self.settings.reminder_intervals_days:
+        for days in self.settings.reminder_intervals:
             remind_date = deadline - timedelta(days=days)
             if remind_date < today:
                 continue

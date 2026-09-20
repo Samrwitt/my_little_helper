@@ -18,48 +18,57 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    funding_type = sa.Enum(
+    funding_type = postgresql.ENUM(
         "fully_funded", "partial", "tuition_only", "stipend_only", "unknown",
         name="funding_type",
+        create_type=False,
     )
-    verification_status = sa.Enum(
-        "verified", "unverified", "unknown", "failed", name="verification_status"
+    verification_status = postgresql.ENUM(
+        "verified", "unverified", "unknown", "failed", name="verification_status", create_type=False
     )
-    fact_status = sa.Enum("verified", "unverified", "unknown", name="fact_status")
-    doc_fact_status = sa.Enum("verified", "unverified", "unknown", name="doc_fact_status")
-    eligibility_status = sa.Enum(
+    fact_status = postgresql.ENUM(
+        "verified", "unverified", "unknown", name="fact_status", create_type=False
+    )
+    doc_fact_status = postgresql.ENUM(
+        "verified", "unverified", "unknown", name="doc_fact_status", create_type=False
+    )
+    eligibility_status = postgresql.ENUM(
         "eligible", "likely_eligible", "uncertain", "likely_ineligible", "ineligible",
         name="eligibility_status",
+        create_type=False,
     )
-    application_status = sa.Enum(
+    application_status = postgresql.ENUM(
         "discovered", "saved", "preparing", "ready_to_apply", "applied",
         "interview", "awarded", "rejected", "withdrawn",
         name="application_status",
+        create_type=False,
     )
-    reminder_type = sa.Enum("deadline", "document", "change", "custom", name="reminder_type")
-    notification_channel = sa.Enum(
+    reminder_type = postgresql.ENUM(
+        "deadline", "document", "change", "custom", name="reminder_type", create_type=False
+    )
+    notification_channel = postgresql.ENUM(
         "in_app", "email", "telegram", "sms", "whatsapp", "push", "google_calendar",
         name="notification_channel",
+        create_type=False,
     )
-    agent_run_status = sa.Enum(
-        "pending", "running", "completed", "failed", "cancelled", name="agent_run_status"
+    agent_run_status = postgresql.ENUM(
+        "pending", "running", "completed", "failed", "cancelled",
+        name="agent_run_status",
+        create_type=False,
     )
-    change_type = sa.Enum(
+    change_type = postgresql.ENUM(
         "deadline_changed", "requirements_changed", "funding_changed",
         "eligible_countries_changed", "application_opened", "application_closed", "other",
         name="change_type",
+        create_type=False,
     )
 
-    funding_type.create(op.get_bind(), checkfirst=True)
-    verification_status.create(op.get_bind(), checkfirst=True)
-    fact_status.create(op.get_bind(), checkfirst=True)
-    doc_fact_status.create(op.get_bind(), checkfirst=True)
-    eligibility_status.create(op.get_bind(), checkfirst=True)
-    application_status.create(op.get_bind(), checkfirst=True)
-    reminder_type.create(op.get_bind(), checkfirst=True)
-    notification_channel.create(op.get_bind(), checkfirst=True)
-    agent_run_status.create(op.get_bind(), checkfirst=True)
-    change_type.create(op.get_bind(), checkfirst=True)
+    for enum in [
+        funding_type, verification_status, fact_status, doc_fact_status,
+        eligibility_status, application_status, reminder_type,
+        notification_channel, agent_run_status, change_type,
+    ]:
+        enum.create(op.get_bind(), checkfirst=True)
 
     op.create_table(
         "users",

@@ -1,0 +1,2 @@
+# Make playwright optional for lighter installs / CI unit tests
+playwright==1.49.1; extra == "browser"

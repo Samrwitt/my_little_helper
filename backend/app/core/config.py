@@ -1,7 +1,6 @@
 from functools import lru_cache
 from typing import List
 
-from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,16 +16,18 @@ class Settings(BaseSettings):
     debug: bool = True
     secret_key: str = "change-me-to-a-long-random-secret-key-in-production"
 
-    backend_cors_origins: List[str] = Field(
-        default_factory=lambda: ["http://localhost:3000", "http://127.0.0.1:3000"]
+    # Comma-separated origins (avoid JSON list env parsing issues)
+    backend_cors_origins: str = (
+        "http://localhost:3000,http://127.0.0.1:3000,"
+        "http://localhost:3001,http://127.0.0.1:3001"
     )
 
-    database_url: str = "postgresql+asyncpg://scholarship:scholarship@localhost:5432/scholarship_autopilot"
-    database_url_sync: str = "postgresql://scholarship:scholarship@localhost:5432/scholarship_autopilot"
+    database_url: str = "postgresql+asyncpg://scholarship:scholarship@localhost:5435/scholarship_autopilot"
+    database_url_sync: str = "postgresql://scholarship:scholarship@localhost:5435/scholarship_autopilot"
 
-    redis_url: str = "redis://localhost:6379/0"
-    celery_broker_url: str = "redis://localhost:6379/0"
-    celery_result_backend: str = "redis://localhost:6379/1"
+    redis_url: str = "redis://localhost:6381/0"
+    celery_broker_url: str = "redis://localhost:6381/0"
+    celery_result_backend: str = "redis://localhost:6381/1"
 
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 14
@@ -46,25 +47,31 @@ class Settings(BaseSettings):
 
     discover_rate_limit_per_hour: int = 3
 
-    reminder_intervals_days: List[int] = Field(
-        default_factory=lambda: [60, 30, 14, 7, 3, 1, 0]
-    )
+    reminder_intervals_days: str = "60,30,14,7,3,1,0"
 
     scraper_timeout_seconds: float = 20.0
     scraper_max_retries: int = 3
     scraper_rate_limit_per_domain: float = 1.0
 
-    @field_validator("backend_cors_origins", mode="before")
-    @classmethod
-    def parse_cors(cls, value: object) -> object:
-        if isinstance(value, str):
-            value = value.strip()
-            if value.startswith("["):
-                import json
+    @property
+    def cors_origins(self) -> List[str]:
+        value = self.backend_cors_origins.strip()
+        if not value:
+            return ["http://localhost:3000", "http://localhost:3001"]
+        if value.startswith("["):
+            import json
 
-                return json.loads(value)
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
-        return value
+            try:
+                return list(json.loads(value))
+            except json.JSONDecodeError:
+                # Fallback for unquoted list-like strings
+                inner = value.strip("[]")
+                return [origin.strip().strip("'\"") for origin in inner.split(",") if origin.strip()]
+        return [origin.strip() for origin in value.split(",") if origin.strip()]
+
+    @property
+    def reminder_intervals(self) -> List[int]:
+        return [int(x.strip()) for x in self.reminder_intervals_days.split(",") if x.strip()]
 
 
 @lru_cache

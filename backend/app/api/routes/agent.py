@@ -44,24 +44,33 @@ async def trigger_discover(
             detail="Complete your profile before running discovery",
         )
 
-    # Enqueue background job; also support sync fallback for demos without worker
-    async_result = discover_scholarships_task.delay(str(user.id), data.max_results)
-    # Create a pending run placeholder if celery unavailable — task creates real run
+    from app.agents.discovery_agent import ScholarshipDiscoveryAgent
     from app.core.enums import AgentRunStatus
     from app.db.base import utcnow
     from app.models import AgentRun as AgentRunModel
 
-    run = AgentRunModel(
-        user_id=user.id,
-        agent_name="ScholarshipDiscoveryAgent",
-        status=AgentRunStatus.PENDING,
-        started_at=utcnow(),
-        input_payload={"user_id": str(user.id), "max_results": data.max_results, "task_id": async_result.id},
-        decision_summary="Queued for background discovery",
-    )
-    db.add(run)
-    await db.flush()
-    return AgentRunOut.model_validate(run)
+    # Prefer Celery when the broker is reachable; otherwise run inline.
+    try:
+        async_result = discover_scholarships_task.delay(str(user.id), data.max_results)
+        run = AgentRunModel(
+            user_id=user.id,
+            agent_name="ScholarshipDiscoveryAgent",
+            status=AgentRunStatus.PENDING,
+            started_at=utcnow(),
+            input_payload={
+                "user_id": str(user.id),
+                "max_results": data.max_results,
+                "task_id": async_result.id,
+            },
+            decision_summary="Queued for background discovery",
+        )
+        db.add(run)
+        await db.flush()
+        return AgentRunOut.model_validate(run)
+    except Exception:
+        agent = ScholarshipDiscoveryAgent(db)
+        run = await agent.run(user.id, max_results=data.max_results)
+        return AgentRunOut.model_validate(run)
 
 
 @router.get("/runs", response_model=list[AgentRunOut])
