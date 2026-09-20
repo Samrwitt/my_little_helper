@@ -12,12 +12,6 @@ from app.schemas import ApplicationCreate, ApplicationUpdate
 
 
 class ApplicationService:
-    TERMINAL_STATUSES = {
-        ApplicationStatus.SUBMITTED
-        if False
-        else ApplicationStatus.APPLIED,  # keep applied as non-terminal for reminders until submitted-like
-    }
-
     REMINDER_STOP_STATUSES = {
         ApplicationStatus.APPLIED,
         ApplicationStatus.REJECTED,

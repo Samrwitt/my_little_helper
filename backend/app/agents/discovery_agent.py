@@ -263,7 +263,6 @@ class ScholarshipDiscoveryAgent:
             return {"ok": False, "error": "Empty page text"}
         if self.gemini.available:
             extraction = self.gemini.extract_scholarship(text, url)
-            self._accumulate_usage.__wrapped__ if False else None  # noqa — keep simple
             return {"ok": True, "data": extraction.model_dump(mode="json")}
         # Offline / no-key heuristic extraction from title-ish content
         return {
