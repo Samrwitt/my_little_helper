@@ -116,7 +116,7 @@ def test_trust_classification():
     from app.services.search.trust import classify_source
     from app.core.enums import SourceReliabilityLevel
 
-    level, score, official = classify_source("https://ethz.ch/scholarships")
+    level, score, official = classify_source("https://www.daad.de/en/scholarships/")
     assert level == SourceReliabilityLevel.OFFICIAL
     assert score == 1.0
     assert official is True

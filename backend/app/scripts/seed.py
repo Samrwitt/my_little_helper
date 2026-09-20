@@ -318,7 +318,8 @@ async def seed() -> None:
         db.add(profile)
 
         scholarship_rows: list[Scholarship] = []
-        for item in SCHOLARSHIPS:
+        for raw in SCHOLARSHIPS:
+            item = dict(raw)
             docs = item.pop("documents")
             s = Scholarship(
                 id=uuid4(),
@@ -333,7 +334,6 @@ async def seed() -> None:
                 is_active=True,
                 **item,
             )
-            # restore documents key was popped
             db.add(s)
             await db.flush()
             db.add(

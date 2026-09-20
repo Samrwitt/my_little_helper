@@ -17,6 +17,11 @@ OFFICIAL_HINTS = (
     "fulbright",
     "campusfrance.org",
     "studyin",
+    "ethz.ch",
+    "ox.ac.uk",
+    "cam.ac.uk",
+    "si.se",
+    "eacea.ec.europa.eu",
 )
 
 RECOGNIZED_HINTS = (

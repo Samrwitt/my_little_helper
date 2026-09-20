@@ -1,9 +1,6 @@
 from datetime import datetime, timezone
-from typing import Annotated
-from uuid import uuid4
 
 from sqlalchemy import DateTime, MetaData
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 NAMING_CONVENTION = {
@@ -23,22 +20,10 @@ class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
 
-UuidPK = Annotated[
-    uuid4.__class__.__mro__[1],  # placeholder; real type below
-    mapped_column(),
-]
-
-
 class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False
-    )
-
-
-class UUIDPrimaryKeyMixin:
-    id: Mapped[uuid4] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid4
     )

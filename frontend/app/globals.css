@@ -1,0 +1,46 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 210 40% 97%;
+  --foreground: 215 35% 14%;
+  --card: 0 0% 100%;
+  --card-foreground: 215 35% 14%;
+  --primary: 199 78% 28%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 198 30% 92%;
+  --secondary-foreground: 199 50% 20%;
+  --muted: 210 25% 93%;
+  --muted-foreground: 215 15% 40%;
+  --accent: 160 40% 36%;
+  --accent-foreground: 0 0% 100%;
+  --border: 210 20% 86%;
+  --input: 210 20% 86%;
+  --ring: 199 78% 28%;
+  --success: 152 45% 36%;
+  --warning: 38 90% 45%;
+  --danger: 0 65% 48%;
+  --radius: 0.65rem;
+  --font-sans: "Source Sans 3", sans-serif;
+  --font-display: "Fraunces", serif;
+}
+
+body {
+  color: hsl(var(--foreground));
+  background:
+    radial-gradient(1200px 600px at 10% -10%, hsla(199, 70%, 70%, 0.18), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, hsla(160, 45%, 55%, 0.12), transparent 55%),
+    linear-gradient(180deg, hsl(210, 40%, 98%), hsl(210, 30%, 94%));
+  min-height: 100vh;
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+}
